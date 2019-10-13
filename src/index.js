@@ -2,21 +2,35 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App/App';
 
-const getResource = async (url) => {
-    const response = await fetch(url);
+class ApiService {
 
-    if (!response.ok) {
-        throw new Error(`Could not fetch ${url}`);
+    _apiBase = 'http://localhost:8080/api/';
+
+    async getResource(url) {
+        const response = await fetch(`${this._apiBase}${url}`);
+
+        if (!response.ok) {
+            throw new Error(`Could not fetch ${this._apiBase}${url}`);
+        }
+        return await response.json();
     }
-    return await response.json();
-};
 
-getResource('http://localhost:8080/api/users/', { mode: 'no-cors'})
-    .then((body) => {
-        console.log(body);
-    })
-    .catch((err) => {
-        console.error('Could not fetch', err);
-    });
+    getUser(id) {
+        return this.getResource(`users/${id}`);
+    }
+
+    async getAllUsers() {
+        const response = await this.getResource(`users/`);
+        return response;
+    }
+}
+
+const api = new ApiService();
+
+api.getAllUsers().then((users) => {
+        users.forEach((user) => {
+            console.log(user);
+        });
+});
 
 ReactDOM.render(<App />, document.getElementById('root'));
